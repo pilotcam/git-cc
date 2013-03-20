@@ -148,7 +148,7 @@ def parseHistory(lines):
     last = None
     comment = None
     for line in lines.splitlines():
-        split = line.split(DELIM)
+        split = line.decode().split(DELIM)
         if len(split) < 6 and last:
             # Cope with comments with '|' character in them
             comment += "\n" + DELIM.join(split)
@@ -352,7 +352,7 @@ class Uncataloged(Changeset):
         diff = cc_exec(['diff', '-diff_format', '-pred', dir], errors=False)
         def getFile(line):
             return join(self.file, line[2:max(line.find('  '), line.find(FS + ' '))])
-        for line in diff.split('\n'):
+        for line in diff.decode().split('\n'):
             sym = line.find(' -> ')
             if sym >= 0:
                 continue
@@ -367,10 +367,10 @@ class Uncataloged(Changeset):
                 if not exists(cc_added):
                     open(cc_added, 'w').close()
                     continue
-                history = cc_exec(['lshistory', '-fmt', '%o%m|%Nd|%Vn\\n', added], errors=False)
+                history = cc_exec(['lshistory', '-fmt', '%o%m|%Nd|%Vn\\n', added], errors=False).decode()
                 if not history:
                     continue
-                date = cc_exec(['describe', '-fmt', '%Nd', dir])
+                date = cc_exec(['describe', '-fmt', '%Nd', dir]).decode()
                 def f(s):
                     return s[0] == 'checkinversion' and s[1] < date and filterBranches(s[2], True)
                 versions = list(filter(f, list(map(lambda x: x.split('|'), history.split('\n')))))
